@@ -6,7 +6,7 @@
 camelcaseword         [A-Z][a-zA-Z]*[0-9]*
 lowercaseword         [a-z]+[0-9]*
 
-%x intag
+%s intag
 
 %%
 '</'{lowercaseword}'>'          return 'CLOSELOWERTAG';
@@ -92,7 +92,7 @@ properties
  ;
 
 string
- : STRING {$$ = '"' + yytext + '"'}
+ : STRING {$$ = JSON.stringify(yytext)}
  | variable
  ;
 
@@ -150,14 +150,19 @@ longtext // Text that can contain '<', '>', '{', and '}'
  | longtext SINGLECHAR {$$ = $1+$2}
  ; 
 
+//a longtext, qutoed and escaped
+quotedlongtext
+ : longtext {$$ = JSON.stringify($longtext)}
+ ;
+
 textfragment
  : variable
- | longtext variable {$$ ='"'+$1+'"+'+$2}
+ | quotedlongtext variable {$$ ='"'+$1+'"+'+$2}
  | textfragment variable {$$ = $1+'+'+$2}
  ;
 
 innertext
- : longtext {$$ = '"' + $1 +'"'}
+ : quotedlongtext {$$ = '"' + $1 +'"'}
  | textfragment {$$ = $1}
- | textfragment longtext {$$ = $1 + ' + "' + $2 + '"'}
+ | textfragment quotedlongtext {$$ = $1 + ' + "' + $2 + '"'}
  ;
