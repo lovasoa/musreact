@@ -131,7 +131,7 @@ loopstart
  : MUSTACHESECTION
     {$$ = 'this.loop(context.'+yytext+').map(function(context){return '}
  | MUSTACHEINVERTED
-    {$$ = 'this.negate('+$1+').map(function(matched){return ';}
+    {$$ = 'this.negate(context.'+$1+').map(function(matched){return ';}
  ;
 
 loopend
