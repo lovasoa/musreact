@@ -21,7 +21,7 @@ lowercaseword         [a-z]+[0-9]*
 '{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
 '{{/'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEEND';
 '{{'\s*\.\s*'}}'                yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHETHIS';
-'{{'\s*[a-zA-Z][a-zA-Z0-9_]+\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
+'{{'\s*[a-zA-Z][a-zA-Z_]*[0-9]*\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
 '{{'\s*([\w /\-.]+)\s*'}}'          yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHECOMPLEXVAR';
 [^<>{}]+                      return 'TEXT';
 <<EOF>>                       return 'EOF';
@@ -46,6 +46,9 @@ file
               ? "  negate: " + negatefunc + ",\n"
               : "") +
           "  render: function(){\n" +
+          (contains("context")
+            ? "    var context = this.props;\n"
+            : "") +
           "    return "+$1+";\n" +
           "  }\n" +
           "});");
