@@ -37,9 +37,7 @@ pre {
 <p>
   List of technologies that allow to build UIs:
     <ul>
-      {{# people}}
-        <li>{{name}}</li>
-      {{/people}}
+      {{# people}}<li>{{name}}</li>{{/people}}
     </ul>
 </p>
 <p>
@@ -48,7 +46,7 @@ pre {
   </label>
 </p>
 </div>
-  </textarea>
+</textarea>
 </div>
 
 <div id="data">
@@ -86,7 +84,7 @@ function error(txt) {
 function compile() {
   error("");
   try {
-     var src = parser.parse(tpl.getValue());
+     var src = parser.parse(tpl.getValue().trim());
   } catch (e) {
     error(e);
     throw e;
