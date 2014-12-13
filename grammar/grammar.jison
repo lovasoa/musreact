@@ -59,11 +59,10 @@ component
 uniquetag // a tag that cannot be a list of several tags
  : tagbegin tagselfclose {$$ = $1+$2}
  | tagbegin tagend tagclose {$$ = $1 + $2 + $3}
- | tagbegin ENDTAG tags tagclose {$$ = $1 + ', ' + $3 + $4}
- | tagbegin ENDTAG innertext tagclose {$$ = $1 +', '+$3+$4}
+ | tagbegin ENDTAG tagsandtext tagclose {$$ = $1 + ', ' + $3 + $4}
  ;
 
-tag : uniquetag | loop ;
+tag : uniquetag | loop;
 
 tagbegin
  : tagstart properties 
@@ -94,12 +93,29 @@ properties
 
 string
  : STRING {$$ = '"' + yytext + '"'}
- | variable {$$ = $1}
+ | variable
  ;
 
 tags
- : tag {$$ = $1}
- | tags tag {$$ = $1 + ', ' + $2}
+ : tag
+ | tags tag {$$ = $1+','+$2}
+ ;
+
+// A mix of tags and text, like Hello<br/>I like<br/>You
+tagsandtext
+ : innertext
+ | tagsintag
+ | innertext tagsintag {$$ = $1 + ', ' + $2}
+ | tagsintag innertext {$$ = $1 + ', ' + $2}
+ | innertext tagsintag innertext {$$ = [$1,$2,$3].join(', ')}
+ ;
+
+// A mix of tags and text that has to start and to end with a tag,
+// like <br/>I like<br/>you<br/>
+tagsintag
+ : tag
+ | tagsintag tag {$$ = $1+', '+$2}
+ | tagsintag innertext tag {$$ = [$1,$2,$3].join(', ')}
  ;
 
 loop
