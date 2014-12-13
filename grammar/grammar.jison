@@ -122,7 +122,7 @@ tagsintag
  ;
 
 loop
- : loopstart tags loopend {$$ = $1+$2+$3}
+ : loopstart tagsandtext loopend {$$ = $1+$2+$3}
  ;
 
 loopstart
