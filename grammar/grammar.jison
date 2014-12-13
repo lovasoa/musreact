@@ -127,13 +127,21 @@ variable
    {$$ = 'context'}
  ;
 
+longtext // Text that can contain '<', '>', '{', and '}'
+ : TEXT {$$ = $1}
+ | SINGLECHAR {$$ = $1}
+ | longtext TEXT {$$ = $1+$2}
+ | longtext SINGLECHAR {$$ = $1+$2}
+ ; 
+
 textfragment
- : TEXT {$$ = '"'+$1+'"'}
- | SINGLECHAR = {$$ = '"'+$1+'"'}
- | variable {$$ = $1}
+ : variable
+ | longtext variable {$$ ='"'+$1+'"+'+$2}
+ | textfragment variable {$$ = $1+'+'+$2}
  ;
 
 innertext
- : textfragment {$$ = $1}
- | innertext textfragment {$$ = $1 + ' + ' + $2}
+ : longtext {$$ = '"' + $1 +'"'}
+ | textfragment {$$ = $1}
+ | textfragment longtext {$$ = $1 + ' + "' + $2 + '"'}
  ;
