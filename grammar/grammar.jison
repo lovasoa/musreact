@@ -19,6 +19,7 @@ lowercaseword         [a-z]+[0-9]*
 <intag>'"'[^"]*'"'              yytext = yytext.substr(1,yyleng-2); return 'STRING';
 <intag>\s+                      /*ignore whitespaces in tags*/
 '{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
+'{{^'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEINVERTED';
 '{{/'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEEND';
 '{{'\s*\.\s*'}}'                yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHETHIS';
 '{{'\s*[a-zA-Z][a-zA-Z_]*[0-9]*\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
