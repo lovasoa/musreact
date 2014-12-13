@@ -21,7 +21,7 @@ lowercaseword         [a-z]+[0-9]*
 '{{'\s*[a-zA-Z][a-zA-Z0-9_]+\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
 '{{'\s*([\w /\-.]+)\s*'}}'          yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHECOMPLEXVAR';
 \\"[^\"]*\"|\'[^\']*\'        yytext = yytext.substr(1,yyleng-2); return 'STRING';
-\w[\w\s]*[\w]|\w              return 'TEXT';
+[^<>{}]+                      return 'TEXT';
 <<EOF>>                       return 'EOF';
 .                             return 'INVALID';
 /lex
