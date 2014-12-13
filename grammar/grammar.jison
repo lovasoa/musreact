@@ -3,23 +3,27 @@
 /* lexical grammar */
 %lex
 
+camelcaseword         [A-Z][a-zA-Z]*[0-9]*
+lowercaseword         [a-z]+
+
 %%
 \s+                   /* skip whitespace */
-'</'                  return '</';
-'<'                   return '<';
-'/>'                  return '/>';
-'>'                   return '>';
-'='                   return '=';
-'{{#'                 return '{{#';
-'{{/'                 return '{{/';
-'{{'                  return '{{';
-'}}'                  return '}}';
-\"[^"]*\"             return 'quotedstring';
-[A-Z][a-zA-Z]*[0-9]*  return 'camelcaseword';
-[a-z]+                return 'lowercaseword';
-\w[\w\s]*[\w]|\w      return 'longtext';
-<<EOF>>               return 'EOF';
-.                     return 'INVALID';
+'</'{lowercaseword}'>'          return 'CLOSELOWERTAG';
+'</'{camelcaseword}'>'          return 'CLOSECAMELTAG';
+'<'{lowercaseword}              yytext = yytext.substr(1); return 'BEGINLOWERTAG';
+'<'{camelcaseword}              yytext = yytext.substr(1); return 'BEGINCAMELTAG';
+'/>'                          return 'SELFCLOSE';
+'>'                           return 'ENDTAG';
+{lowercaseword}'='              yytext = yytext.substr(0,yyleng-1); return 'PROPERTYDECLARATION';
+'{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
+'{{/'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEEND';
+'{{'\s*\.\s*'}}'                yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHETHIS';
+'{{'\s*[a-zA-Z][a-zA-Z0-9_]+\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
+'{{'\s*([\w /\-.]+)\s*'}}'            yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHECOMPLEXVAR';
+\\"[^\"]*\"|\'[^\']*\'        yytext = yytext.substr(1,yyleng-2); return 'STRING';
+\w[\w\s]*[\w]|\w              return 'TEXT';
+<<EOF>>                       return 'EOF';
+.                             return 'INVALID';
 /lex
 
 %start file
@@ -38,52 +42,41 @@ component
 tag
  : tagbegin tagselfclose {$$ = $1+$2}
  | tagbegin tagend tagclose {$$ = $1 + $2 + $3}
- | tagbegin tagend tags tagclose {$$ = $1 + $2 + ',' + $3 + $4}
- | tagbegin tagend innertext tagclose {$$ = $1+$2+', '+$3+$4}
+ | tagbegin ENDTAG tags tagclose {$$ = $1 + ', ' + $3 + $4}
+ | tagbegin ENDTAG innertext tagclose {$$ = $1 +', '+$3+$4}
  ;
 
 tagbegin
- : '<' element properties 
-     {$$ = 'React.createElement(' + $2 + ', {' + $3 + '}'}
- | '<' element 
-     {$$ = 'React.createElement(' + $2 + ', null'}
+ : tagstart properties 
+     {$$ = 'React.createElement(' + $1 + ', {' + $2 + '}'}
+ | tagstart
+     {$$ = 'React.createElement(' + $1 + ', null'}
  ;
 
-tagend
- : '>'
-   {$$ = ''}
+tagstart
+ : BEGINLOWERTAG {$$ = '"'+$1+'"'}
+ | BEGINCAMELTAG {$$ = $1}
  ;
 
 tagselfclose
- : '/>'
+ : SELFCLOSE
    {$$ = ')'}
  ;
 
 tagclose
- : '</' element '>'
-   {$$ = ')'}
+ : CLOSECAMELTAG {$$ = ')'}
+ | CLOSELOWERTAG {$$ = ')'}
  ;
 
 properties
- : property {$$ = $1}
- | properties property {$$ = $1 + ', ' + $2}
- ;
-
-property
- : rawword '=' string
-   {$$ = $1 + ':' + $3}
+ : PROPERTYDECLARATION string {$$ = '"' + $1 + '": ' + $2}
+ | properties PROPERTYDECLARATION string {$$ = ', "' + $2 + '": ' + $3}
  ;
 
 string
- : 'quotedstring' {$$ = yytext}
+ : STRING {$$ = '"' + yytext + '"'}
  | variable {$$ = $1}
  ;
-
-rawword
- : 'lowercaseword' {$$ = yytext}
- | 'camelcaseword' {$$ = yytext}
- ;
-
 
 tags
  : tag {$$ = $1}
@@ -92,37 +85,30 @@ tags
  ;
 
 loopstart
- : '{{#' lowercaseword '}}'
-    {var i = 'context.' + $2;
+ : MUSTACHESECTION
+    {var i = 'context.' + yytext;
     $$ = '(Array.isArray('+i+') && '+i+' || !!'+i+' && ['+i+'] || []).map(function(context){return '}
+ | MUSTACHEINVERTED
+    {$$ = '(val==null && [val] || val.length===0 && val || [])'.replace(/val/g, 'context.'+yytext)
+    $$ += '.map(function(matched){return ';}
  ;
 
 loopend
- : '{{/' lowercaseword '}}'
+ : MUSTACHEEND 
    {$$ = '})'}
  ;
 
 variable
- : '{{' lowercaseword '}}'
-   {$$ = 'context.' + $2}
- ;
-
-element
- : 'lowercaseword'
-   // element names that are in lowercase are HTML elements and need to be quoted
-   {$$ = '"' + yytext + '"'}
- | 'camelcaseword'
-   {$$ = yytext}
- ;
-
-rawwords
- : rawword {$$ = $1}
- | rawwords rawword {$$ = $1 + ' ' + $2}
+ : MUSTACHESIMPLEVAR
+   {$$ = 'context.' + yytext}
+ | MUSTACHECOMPLEXVAR
+   {$$ = 'context["' + yytext + '"]'}
+ | MUSTACHETHIS
+   {$$ = 'context'}
  ;
 
 textfragment
- : longtext {$$ = '"'+$1+'"'}
- | rawwords {$$ = '"'+$1+'"'}
+ : TEXT {$$ = '"'+$1+'"'}
  | variable {$$ = $1}
  ;
 
