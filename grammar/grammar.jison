@@ -23,7 +23,7 @@ lowercaseword         [a-z]+[0-9]*
 \\"[^\"]*\"|\'[^\']*\'        yytext = yytext.substr(1,yyleng-2); return 'STRING';
 [^<>{}]+                      return 'TEXT';
 <<EOF>>                       return 'EOF';
-.                             return 'INVALID';
+.                             return 'SINGLECHAR';
 /lex
 
 %start file
@@ -127,6 +127,7 @@ variable
 
 textfragment
  : TEXT {$$ = '"'+$1+'"'}
+ | SINGLECHAR = {$$ = '"'+$1+'"'}
  | variable {$$ = $1}
  ;
 
