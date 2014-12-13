@@ -12,14 +12,14 @@ lowercaseword         [a-z]+
 '</'{camelcaseword}'>'          return 'CLOSECAMELTAG';
 '<'{lowercaseword}              yytext = yytext.substr(1); return 'BEGINLOWERTAG';
 '<'{camelcaseword}              yytext = yytext.substr(1); return 'BEGINCAMELTAG';
-'/>'                          return 'SELFCLOSE';
-'>'                           return 'ENDTAG';
+'/>'                            return 'SELFCLOSE';
+'>'                             return 'ENDTAG';
 {lowercaseword}'='              yytext = yytext.substr(0,yyleng-1); return 'PROPERTYDECLARATION';
 '{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
 '{{/'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEEND';
 '{{'\s*\.\s*'}}'                yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHETHIS';
 '{{'\s*[a-zA-Z][a-zA-Z0-9_]+\s*'}}' yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHESIMPLEVAR';
-'{{'\s*([\w /\-.]+)\s*'}}'            yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHECOMPLEXVAR';
+'{{'\s*([\w /\-.]+)\s*'}}'          yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHECOMPLEXVAR';
 \\"[^\"]*\"|\'[^\']*\'        yytext = yytext.substr(1,yyleng-2); return 'STRING';
 \w[\w\s]*[\w]|\w              return 'TEXT';
 <<EOF>>                       return 'EOF';
