@@ -17,7 +17,7 @@ lowercaseword         [a-z]+[0-9]*
 <intag>'>'                      this.popState(); return 'ENDTAG';
 <intag>{lowercaseword}'='       yytext = yytext.substr(0,yyleng-1); return 'PROPERTYDECLARATION';
 <intag>'"'[^"]*'"'              yytext = yytext.substr(1,yyleng-2); return 'STRING';
-<intag>\s+                      /*ignore*/
+<intag>\s+                      /*ignore whitespaces in tags*/
 '{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
 '{{/'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHEEND';
 '{{'\s*\.\s*'}}'                yytext = yytext.substr(2, yyleng-4).trim(); return 'MUSTACHETHIS';
