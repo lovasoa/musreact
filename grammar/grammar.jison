@@ -4,7 +4,7 @@
 %lex
 
 camelcaseword         [A-Z][a-zA-Z]*[0-9]*
-lowercaseword         [a-z]+
+lowercaseword         [a-z]+[0-9]*
 
 %%
 \s+                   /* skip whitespace */
@@ -32,19 +32,36 @@ lowercaseword         [a-z]+
 
 file
     : component EOF
-        {return $1;}
+        %{
+          var contains = function(x){return $1.indexOf(x) > -1},
+            loopfunc = "function(a){return Array.isArray(a) && a || !!a && [a] || []}",
+            negatefunc = "function(a){return (a==null || a.length===0) && [a] || []}";
+          return ("React.createClass({\n" +
+          (contains("this.loop(") 
+              ? "  loop: " + loopfunc + ",\n"
+              : "") +
+          (contains("this.negate(") 
+              ? "  negate: " + negatefunc + ",\n"
+              : "") +
+          "  render: function(){\n" +
+          "    return "+$1+";\n" +
+          "  }\n" +
+          "});");
+        }
     ;
 
 component
- : tag
+ : uniquetag
  ;
 
-tag
+uniquetag // a tag that cannot be a list of several tags
  : tagbegin tagselfclose {$$ = $1+$2}
  | tagbegin tagend tagclose {$$ = $1 + $2 + $3}
  | tagbegin ENDTAG tags tagclose {$$ = $1 + ', ' + $3 + $4}
  | tagbegin ENDTAG innertext tagclose {$$ = $1 +', '+$3+$4}
  ;
+
+tag : uniquetag | loop ;
 
 tagbegin
  : tagstart properties 
@@ -81,16 +98,17 @@ string
 tags
  : tag {$$ = $1}
  | tags tag {$$ = $1 + ', ' + $2}
- | loopstart tags loopend {$$ = $1+$2+$3}
+ ;
+
+loop
+ : loopstart tags loopend {$$ = $1+$2+$3}
  ;
 
 loopstart
  : MUSTACHESECTION
-    {var i = 'context.' + yytext;
-    $$ = '(Array.isArray('+i+') && '+i+' || !!'+i+' && ['+i+'] || []).map(function(context){return '}
+    {$$ = 'this.loop(context.'+yytext+').map(function(context){return '}
  | MUSTACHEINVERTED
-    {$$ = '(val==null && [val] || val.length===0 && val || [])'.replace(/val/g, 'context.'+yytext)
-    $$ += '.map(function(matched){return ';}
+    {$$ = 'this.negate('+$1+').map(function(matched){return ';}
  ;
 
 loopend
