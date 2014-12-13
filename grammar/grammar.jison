@@ -62,7 +62,7 @@ component
 
 uniquetag // a tag that cannot be a list of several tags
  : tagbegin tagselfclose {$$ = $1+$2}
- | tagbegin ENDTAG tagclose {$$ = $1 + $2 + $3}
+ | tagbegin ENDTAG tagclose {$$ = $1 + $3}
  | tagbegin ENDTAG tagsandtext tagclose {$$ = $1 + ', ' + $3 + $4}
  ;
 
@@ -131,7 +131,7 @@ loopstart
  : MUSTACHESECTION
     {$$ = 'this.loop(context.'+yytext+').map(function(context){return '}
  | MUSTACHEINVERTED
-    {$$ = 'this.negate('+$1+').map(function(matched){return ';}
+    {$$ = 'this.negate(context.'+$1+').map(function(matched){return ';}
  ;
 
 loopend
