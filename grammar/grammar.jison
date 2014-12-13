@@ -157,12 +157,12 @@ quotedlongtext
 
 textfragment
  : variable
- | quotedlongtext variable {$$ ='"'+$1+'"+'+$2}
+ | quotedlongtext variable {$$ =$1+'+'+$2}
  | textfragment variable {$$ = $1+'+'+$2}
  ;
 
 innertext
- : quotedlongtext {$$ = '"' + $1 +'"'}
- | textfragment {$$ = $1}
- | textfragment quotedlongtext {$$ = $1 + ' + "' + $2 + '"'}
+ : quotedlongtext
+ | textfragment
+ | textfragment quotedlongtext {$$ = $1 + ' + ' + $2}
  ;
