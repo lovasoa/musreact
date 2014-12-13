@@ -108,9 +108,10 @@ tags
 tagsandtext
  : innertext
  | tagsintag
- | innertext tagsintag {$$ = $1 + ', ' + $2}
- | tagsintag innertext {$$ = $1 + ', ' + $2}
- | innertext tagsintag innertext {$$ = [$1,$2,$3].join(', ')}
+ | innertext tagsintag {$$ = $1==='""' ? $2 : $1 + ', ' + $2}
+ | tagsintag innertext {$$ = $2==='""' ? $1 : $1 + ', ' + $2}
+ | innertext tagsintag innertext
+    {$$ = ($1==='""'? '' : $1+',') + $2 + ($3 === '""' ? '' : ','+$3)}
  ;
 
 // A mix of tags and text that has to start and to end with a tag,
@@ -153,19 +154,21 @@ longtext // Text that can contain '<', '>', '{', and '}'
  | longtext SINGLECHAR {$$ = $1+$2}
  ; 
 
-//a longtext, qutoed and escaped
+//a longtext, quoted and escaped
 quotedlongtext
- : longtext {$$ = JSON.stringify($longtext)}
+ // Remove strings which contain only whitespaces, in order to allow indenting
+ // code without affecting the result
+ : longtext {$$ = ($1.trim()==='') ? '""' : JSON.stringify($longtext)}
  ;
 
 textfragment
  : variable
- | quotedlongtext variable {$$ =$1+'+'+$2}
- | textfragment variable {$$ = $1+'+'+$2}
+ | quotedlongtext variable {$$ = $1==='""' ? $2 : $1+' + '+$2}
+ | textfragment variable {$$ = $1+' + '+$2}
  ;
 
 innertext
  : quotedlongtext
  | textfragment
- | textfragment quotedlongtext {$$ = $1 + ' + ' + $2}
+ | textfragment quotedlongtext {$$ = $2 === '""' ? $1 : $1 + ' + ' + $2}
  ;
