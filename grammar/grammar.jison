@@ -46,6 +46,9 @@ file
               ? "  negate: " + negatefunc + ",\n"
               : "") +
           "  render: function(){\n" +
+          (contains("context")
+            ? "    var context = this.props;\n"
+            : "") +
           "    return "+$1+";\n" +
           "  }\n" +
           "});");
