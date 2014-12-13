@@ -61,7 +61,7 @@ component
 
 uniquetag // a tag that cannot be a list of several tags
  : tagbegin tagselfclose {$$ = $1+$2}
- | tagbegin tagend tagclose {$$ = $1 + $2 + $3}
+ | tagbegin ENDTAG tagclose {$$ = $1 + $2 + $3}
  | tagbegin ENDTAG tagsandtext tagclose {$$ = $1 + ', ' + $3 + $4}
  ;
 
