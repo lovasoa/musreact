@@ -6,7 +6,7 @@
 camelcaseword         [A-Z][a-zA-Z]*[0-9]*
 lowercaseword         [a-z]+[0-9]*
 
-%x intag
+%s intag
 
 %%
 '</'{lowercaseword}'>'          return 'CLOSELOWERTAG';
