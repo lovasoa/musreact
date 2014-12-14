@@ -1,0 +1,10 @@
+{
+  "name": "musreact",
+  "version": "0.0.1",
+  "description": "Mustache to React Component compiler",
+  "scripts": { "test": "node test/all.js" },
+  "devDependencies": {
+    "test": ">=0.6.0",
+    "react": ">=0.12.1"
+  }
+}
