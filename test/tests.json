@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "emptytag",
+      "source": "<p></p>",
+      "data" : {},
+      "expected": "<p></p>"
+    },
+
+    {
+      "name": "variable",
+      "source" : "<p>Hello {{what}}</p>",
+      "data": {"what": "world"},
+      "expected" : "<p>Hello world</p>"
+    },
+
+    {
+      "name": "mix variables and text",
+      "source" : "<p>{{what}}, {{what}}, {{what}}...</p>",
+      "data": {"what": "world"},
+      "expected" : "<p>world, world, world...</p>"
+    },
+
+    {
+      "name": "mix variables and text, starting with text",
+      "source" : "<p>Hello {{what}}, {{what}}, {{what}}...</p>",
+      "data": {"what": "world"},
+      "expected" : "<p>Hello world, world, world...</p>"
+    }
+  ]
+}
