@@ -6,6 +6,9 @@
 camelcaseword         [A-Z][a-zA-Z]*[0-9]*
 lowercaseword         [a-z]+[0-9]*
 
+// see http://www.w3.org/TR/html-markup/syntax.html#attribute-name
+attributename         [^\s\u0000"'>/=]+
+
 %s intag
 
 %%
@@ -15,7 +18,7 @@ lowercaseword         [a-z]+[0-9]*
 '<'{camelcaseword}              yytext = yytext.substr(1); this.begin('intag'); return 'BEGINCAMELTAG';
 <intag>'/>'                     this.popState(); return 'SELFCLOSE';
 <intag>'>'                      this.popState(); return 'ENDTAG';
-<intag>{lowercaseword}'='       yytext = yytext.substr(0,yyleng-1); return 'PROPERTYDECLARATION';
+<intag>{attributename}'='       yytext = yytext.substr(0,yyleng-1); return 'PROPERTYDECLARATION';
 <intag>'"'[^"]*'"'              yytext = yytext.substr(1,yyleng-2); return 'STRING';
 <intag>\s+                      /*ignore whitespaces in tags*/
 '{{#'\s*[a-z]*\s*'}}'           yytext = yytext.substr(3, yyleng-5).trim(); return 'MUSTACHESECTION';
@@ -92,7 +95,7 @@ tagclose
 
 properties
  : PROPERTYDECLARATION string {$$ = '"' + $1 + '": ' + $2}
- | properties PROPERTYDECLARATION string {$$ = ', "' + $2 + '": ' + $3}
+ | properties PROPERTYDECLARATION string {$$ = $1 + ', "' + $2 + '": ' + $3}
  ;
 
 string
