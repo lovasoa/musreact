@@ -15,6 +15,13 @@
     },
 
     {
+      "name": "attributes",
+      "source" : "<p id=\"hello\" className={{class}}></p>",
+      "data": {"class": "youpi"},
+      "expected" : "<p id=\"hello\" class=\"youpi\"></p>"
+    },
+
+    {
       "name": "mix variables and text",
       "source" : "<p>{{what}}, {{what}}, {{what}}...</p>",
       "data": {"what": "world"},
