@@ -101,12 +101,15 @@ function error(txt) {
 var reactComp;
 function compile() {
   error("");
+  var before = Date.now();
   try {
      var src = parser.parse(tpl.getValue().trim());
   } catch (e) {
     error(e);
     throw e;
   }
+  console.log((Date.now()-before) + "ms to compile from mustache to react source");
+  before = Date.now();
   try {
     reactComp = eval(src);
   } catch (e) {
@@ -116,6 +119,7 @@ function compile() {
         "error: "+e); 
     throw e;
   }
+  console.log((Date.now()-before) + "ms to evaluate the generated source");
   run();
 }
 
@@ -131,6 +135,7 @@ function parsedata() {
 }
 
 function run() {
+  var before = Date.now();
   try {
     React.render(
         React.createElement(reactComp, jsondata),
@@ -140,6 +145,7 @@ function run() {
     error("failed to render.\n\n"+e);
     throw e;
   }
+  console.log((Date.now()-before) + "ms to render the react component");
 }
 
 compile();
