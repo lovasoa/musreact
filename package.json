@@ -1,0 +1,13 @@
+{
+  "name": "musreact",
+  "version": "0.0.1",
+  "description": "Mustache to React Component compiler",
+  "scripts": { "test": "node test/all.js", "compile": "jison grammar.jison -o musreact.js" },
+  "dependencies" : {
+    "jison": ">=0.4" 
+  },
+  "devDependencies": {
+    "test": ">=0.6.0",
+    "react": ">=0.12.1"
+  }
+}

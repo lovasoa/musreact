@@ -166,6 +166,8 @@ textfragment
  : variable
  | quotedlongtext variable {$$ = $1==='""' ? $2 : $1+' + '+$2}
  | textfragment variable {$$ = $1+' + '+$2}
+ | textfragment quotedlongtext variable
+    {$$ = $1 + ' + ' + ($2==='""'?'':$2+'+') + $3}
  ;
 
 innertext
