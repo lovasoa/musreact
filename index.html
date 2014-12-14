@@ -47,7 +47,9 @@ pre {
 </p>
 <p>
   <label>Type text here, and update the data. It doesn't disappear<br/>
-  <input type="text" />
+    {{#input}}
+      <input type={{type}} onChange={{onChange}} />
+    {{/input}}
   </label>
 </p>
 </div>
@@ -62,7 +64,13 @@ pre {
   "people" : [
     {"name":"Yoan"},
     {"name":"Elise", "age":12}
-  ] 
+  ],
+  "input" : {
+    "type": "email",
+    "onChange": function(e){
+      console.log(e.target.value);
+    }
+  }
 }
 </textarea>
 </div>
@@ -115,7 +123,7 @@ var jsondata = {};
 function parsedata() {
   error("");
   try {
-    jsondata = JSON.parse(data.getValue());
+    eval("jsondata = " + data.getValue());
   } catch(e) {
     error(e);
   }
