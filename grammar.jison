@@ -95,7 +95,7 @@ tagclose
 
 properties
  : PROPERTYDECLARATION string {$$ = '"' + $1 + '": ' + $2}
- | properties PROPERTYDECLARATION string {$$ = ', "' + $2 + '": ' + $3}
+ | properties PROPERTYDECLARATION string {$$ = $1 + ', "' + $2 + '": ' + $3}
  ;
 
 string
