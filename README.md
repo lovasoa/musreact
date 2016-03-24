@@ -37,3 +37,17 @@ React.render(
 
 ### Server compiling
 Just save the output of `parser.parse(mustacheString)`, and serve it as a normal js file.
+
+An simple script could be:
+```js
+var fs = require("fs");
+var parse = require("musreact").parse;
+
+var jsSource = parse(fs.readFileSync("react-component.mustache", "utf-8"));
+
+fs.writeFileSync("react-component.js", "MyComponent = " + jsSource);
+```
+
+It reads the template from `react-component.mustache` and saves the compiled
+react component to `react-component.js`. The component will then be accessible through
+the global variable `MyComponent`.
